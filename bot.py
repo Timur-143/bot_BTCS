@@ -11,7 +11,7 @@ from aiogram.fsm.state import StatesGroup, State
 
 BOT_TOKEN = "8754310840:AAFQ4JPyEJUZct02zal_gvR6AaW5EWKC59U"
 CHANNEL_ID = "@iruka61"  # ВСТАВЬ ID КАНАЛА
-COOLDOWN = 300  # 30 минут (в секундах)
+COOLDOWN = 90  # (в секундах)
 
 # антиспам словарь
 user_cooldowns = {}
@@ -29,12 +29,12 @@ dp = Dispatcher(storage=MemoryStorage())
 async def start(message: Message):
     await message.answer(
         "Привет 👋\n"
-        "Напиши /miss чтобы отправить сообщение в канал.\n"
+        "Напиши /post чтобы отправить сообщение в канал.\n"
         "⚠ Можно отправлять 1 сообщение раз в 5 минут."
     )
 
 
-@dp.message(Command("miss"))
+@dp.message(Command("post"))
 async def miss(message: Message, state: FSMContext):
     user_id = message.from_user.id
     current_time = time.time()
@@ -77,7 +77,7 @@ async def get_content(message: Message, state: FSMContext):
         await message.answer("Поддерживается только текст, фото или видео.")
         return
 
-    await state.update_data(miss=data)
+    await state.update_data(post=data)
 
     kb = InlineKeyboardMarkup(inline_keyboard=[
         [
@@ -96,7 +96,7 @@ async def send_anon(callback: CallbackQuery, state: FSMContext):
     user_cooldowns[user_id] = time.time()
 
     data = await state.get_data()
-    miss = data["miss"]
+    miss = data["post"]
 
     if miss["type"] == "text":
         await bot.send_message(CHANNEL_ID, f"📩 Анонимное сообщение:\n\n{miss['text']}")
@@ -135,7 +135,7 @@ async def send_pseud(message: Message, state: FSMContext):
 
     pseud = message.text
     data = await state.get_data()
-    miss = data["miss"]
+    miss = data["post"]
 
     header = f"📩 Сообщение от {pseud}:\n\n"
 
